@@ -22,8 +22,8 @@ print(r.url)
 '''
 # 二进制数据
 r = requests.get('https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2316242837,3672164063&fm=27&gp=0.jpg')
-image = Image.open(BytesIO(r.content))
-image.save('image/meinv.jpg')
+images = Image.open(BytesIO(r.content))
+images.save('images/meinv.jpg')
 '''
 
 '''

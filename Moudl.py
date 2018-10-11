@@ -71,7 +71,7 @@ def getNovel(url, sort_id, sort_name):
     bookname = re.findall(reg, html)[0]
     reg = r'<meta property="og:description" content="(.*?)"/>'
     description = re.findall(reg, html, re.S)[0]
-    reg = r'<meta property="og:image" content="(.*?)"/>'
+    reg = r'<meta property="og:images" content="(.*?)"/>'
     image = re.findall(reg, html)[0]
     reg =  r'<meta property="og:novel:author" content="(.*?)"/>'
     author = re.findall(reg, html)[0]

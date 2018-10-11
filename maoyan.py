@@ -28,7 +28,7 @@ def parse_one_page(html):
     for item in items:
         yield {
             'index': item[0],
-            'image': item[1],
+            'images': item[1],
             'title': item[2].strip(),
             'actor': item[3].strip()[3:] if len(item[3]) > 3 else '',
             'time': item[4].strip()[5:] if len(item[4]) > 5 else '',

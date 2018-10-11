@@ -39,7 +39,7 @@ def get_image(json):
             images = item.get('image_list')
             for image in images:
                 yield {
-                    'image': 'https:' + image.get('url'),
+                    'images': 'https:' + image.get('url'),
                     'title': title
                 }
 
@@ -48,10 +48,10 @@ def save_image(item):
     if not os.path.exists(item.get('title')):
         os.mkdir(item.get('title'))
     try:
-        response = requests.get(item.get('image'))
+        response = requests.get(item.get('images'))
         if response.status_code == 200:
             file_path = '{0}/{1}.{2}'.format(item.get('title'),
-                            md5(response.content).hexdigest(), 'jpg')
+                            md5(response.content).hexdigest(), 'jpg', 'images')
             if not os.path.exists(file_path):
                 with open(file_path, 'wb') as f:
                     f.write(response.content)
