@@ -3,6 +3,8 @@ from urllib.parse import urlencode
 import os
 from hashlib import md5
 from multiprocessing.pool import Pool
+import json
+import time
 
 headers = {
     "User-Agent": "Mozilla/5.0(Macintosh;U;IntelMacOSX10_6_8;en-us)"
@@ -14,7 +16,7 @@ def get_page(offset):
     params = {
         'offset': offset,
         'format': 'json',
-        'keyword': '街拍',
+        'keyword': '科技',
         'autoload': 'true',
         'count': '20',
         'cur_tab': '1',
@@ -23,51 +25,50 @@ def get_page(offset):
     url = 'http://www.toutiao.com/search_content/?' + urlencode(params)
     try:
         response = requests.get(url, headers)
-        time.s
         if response.status_code == 200:
             return response.json()
     except requests.ConnectionError:
         return None
 
 
-def get_image(json):
+def get_news(json):
     if json.get('data'):
         data = json.get('data')
         for item in data:
-            if item.get('cell_type') is not None:
-                continue
-            title = item.get('title')
+            author = item.get('media_name')
+            author_id = item.get('id')
+            comments = item.get('comments_counts')
+            contents = item.get('article_url')
+            date = item.get('date')
             images = item.get('image_list')
-            for image in images:
-                yield {
-                    'images': 'https:' + image.get('url'),
-                    'title': title
-                }
+            title = item.get('abstract')
+            new_id = item.get('item_id')
+            yield {
+                'author': author,
+                'author_id': author_id,
+                'comments': comments,
+                'contents': contents,
+                'date': date,
+                'images': images,
+                'title': title,
+                'new_id': new_id
+            }
 
 
-def save_image(item):
-    if not os.path.exists(item.get('title')):
-        os.mkdir(item.get('title'))
-    try:
-        response = requests.get(item.get('images'))
-        if response.status_code == 200:
-            file_path = '{0}/{1}.{2}'.format(item.get('title'),
-                            md5(response.content).hexdigest(), 'jpg', 'images')
-            if not os.path.exists(file_path):
-                with open(file_path, 'wb') as f:
-                    f.write(response.content)
-            else:
-                print('Already Downloaded', file_path)
-
-    except requests.ConnectionError:
-        print('Failed to save Image')
+def save_news(item):
+    # print(item)
+    with open('data.json', 'a', encoding='utf-8') as f:
+        data = json.dumps(item, ensure_ascii=False)
+        f.write(data)
+        # print(data)
 
 
 def main(offset):
+    print('正在保存第%d页信息' % (offset/20))
     json = get_page(offset)
-    for item in get_image(json):
-        print(item)
-        save_image(item)
+    for item in get_news(json):
+        # print(item)
+        save_news(item)
 
 
 GROUP_START = 0
@@ -77,5 +78,6 @@ if __name__ == '__main__':
     pool = Pool()
     groups = ([x * 20 for x in range(GROUP_START, GROUP_END + 1)])
     pool.map(main, groups)
+    print('保存完成！')
     pool.close()
     pool.join()
